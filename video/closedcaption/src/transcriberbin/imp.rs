@@ -377,7 +377,7 @@ impl TranscriberBin {
         state: &mut State,
         old_transcriber: &gst::Element,
     ) -> Result<(), Error> {
-        gst::error!(
+        gst::warning!(
             CAT,
             imp: self,
             "Relinking transcriber, old: {:?}, new: {:?}",
@@ -451,7 +451,7 @@ impl TranscriberBin {
         let transcriber = gst::ElementFactory::make("awstranscriber", Some("transcriber"))?;
         let transcriber_queue = gst::ElementFactory::make("queue", None)?;
         let audio_queue_passthrough = gst::ElementFactory::make("queue", None)?;
-        let video_queue = gst::ElementFactory::make("queue", None)?;
+        let video_queue = gst::ElementFactory::make("queue", Some("video-queue"))?;
         let cccapsfilter = gst::ElementFactory::make("capsfilter", None)?;
         let transcription_valve = gst::ElementFactory::make("valve", None)?;
 
@@ -780,7 +780,7 @@ impl ElementImpl for TranscriberBin {
 
     fn pad_templates() -> &'static [gst::PadTemplate] {
         static PAD_TEMPLATES: Lazy<Vec<gst::PadTemplate>> = Lazy::new(|| {
-            let caps = gst::Caps::builder("video/x-raw").build();
+            let caps = gst::Caps::new_any();
             let video_src_pad_template = gst::PadTemplate::new(
                 "src_video",
                 gst::PadDirection::Src,
